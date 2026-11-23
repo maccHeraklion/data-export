@@ -9,7 +9,10 @@
 - `index.html`: η σελίδα. Επιλογή σταθμού, ημερομηνιών και μορφής CSV.
 - `api/data.js`: serverless function. Φέρνει από το Supabase τις μετρήσεις ενός σταθμού για ένα διάστημα,
   σε σελίδες (το Supabase δίνει έως 1000 γραμμές ανά αίτημα). Το κλειδί της βάσης μένει μόνο στον server.
-- `api/stations.js` + `lib/stations.js`: η λίστα σταθμών. **Νέος σταθμός στη βάση → πρόσθεσέ τον στο `lib/stations.js`.**
+- `api/field.js` + `lib/fields.js`: οι αγροί. Κάθε αγρός έχει δικό του link `/<slug>` και βλέπει μόνο
+  τους δικούς του σταθμούς. Ο server ελέγχει ότι ο σταθμός ανήκει στον αγρό του link.
+- Οι αγροί **δεν** είναι στο repo (είναι public): ζουν στο env `FIELDS` του Vercel, και τοπικά στο
+  `fields.local.json` (δεν ανεβαίνει). Δες το `fields.example.json` για τη μορφή.
 - Ο browser σπάει το διάστημα σε κομμάτια 7 ημερών, τα φέρνει παράλληλα και φτιάχνει το CSV.
 
 Το CSV είναι «πλατύ»: μία γραμμή ανά χρονική στιγμή, μία στήλη ανά μεταβλητή, με στήλες
@@ -21,12 +24,20 @@
 2. Environment Variables:
    - `SUPABASE_URL`: το URL του project στο Supabase
    - `SUPABASE_KEY`: το publishable key
+   - `FIELDS`: το περιεχόμενο του `fields.local.json`
 3. Deploy.
+
+## Νέος αγρός
+
+Πρόσθεσε μια εγγραφή στο `FIELDS` (και στο `fields.local.json`) με slug που έχει τυχαίο κομμάτι στο τέλος,
+π.χ. `onoma-agrou-3f9a1c`, και κάνε Redeploy στο Vercel. Αγρός με `"stations": []` δείχνει
+«Δεν υπάρχουν ακόμα διαθέσιμα δεδομένα».
 
 ## Τοπική δοκιμή
 
 ```bash
 cp .env.example .env   # και συμπλήρωσε τις τιμές
+cp fields.example.json fields.local.json
 node dev.mjs           # http://localhost:3000
 ```
 

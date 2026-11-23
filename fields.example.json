@@ -1,0 +1,9 @@
+{
+  "onoma-agrou-3f9a1c": {
+    "name": "Όνομα αγρού",
+    "stations": [
+      { "id": "onoma_weather_station", "label": "Μετεωρολογικός σταθμός" },
+      { "id": "onoma_soil_sensor", "label": "Αισθητήρας εδάφους" }
+    ]
+  }
+}

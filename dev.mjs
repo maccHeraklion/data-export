@@ -19,7 +19,8 @@ createServer(async (req, res) => {
       const mod = await import(`./api/${api[1]}.js`);
       return await mod.default(req, res);
     }
-    if (path === '/' || path === '/index.html') {
+    // όπως το rewrite στο vercel.json: /<slug> -> index.html
+    if (path === '/' || path === '/index.html' || /^\/[a-z0-9-]+\/?$/.test(path)) {
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       return res.end(readFileSync('index.html'));
     }

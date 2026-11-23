@@ -1,11 +1,13 @@
 // Επιστρέφει μία "σελίδα" μετρήσεων ενός σταθμού για ένα χρονικό διάστημα.
 // Ο browser καλεί επανειλημμένα με το cursor `next` μέχρι να γυρίσει null.
 //
-// GET /api/data?station=galifa&from=2026-11-01T00:00:00&to=2026-11-02T00:00:00
+// GET /api/data?field=<slug>&station=vria_1_weather_station
+//               &from=2026-11-01T00:00:00&to=2026-11-02T00:00:00
 //               [&after_date=...&after_var=...]
+// Ο σταθμός πρέπει να ανήκει στον αγρό του slug, αλλιώς 403.
 // Οι ημερομηνίες είναι UTC χωρίς ζώνη, όπως είναι αποθηκευμένες στη βάση.
 
-import { STATIONS } from '../lib/stations.js';
+import { getField } from '../lib/fields.js';
 
 const PAGE = 1000;      // μέγιστο που επιστρέφει το Supabase ανά αίτημα
 const MAX_PAGES = 8;    // σελίδες ανά κλήση, για να μένουμε μακριά από το timeout του Vercel
@@ -30,7 +32,9 @@ export default async function handler(req, res) {
   let afterDate = q.get('after_date');
   let afterVar = q.get('after_var');
 
-  if (!STATIONS.includes(station)) return send(res, 400, { error: 'Άγνωστος σταθμός' });
+  const field = getField(q.get('field'));
+  if (!field) return send(res, 404, { error: 'Δεν βρέθηκε ο αγρός' });
+  if (!field.stations.some((s) => s.id === station)) return send(res, 403, { error: 'Ο σταθμός δεν ανήκει σε αυτόν τον αγρό' });
   if (!DT.test(from || '') || !DT.test(to || '') || from >= to) return send(res, 400, { error: 'Λάθος διάστημα ημερομηνιών' });
   if ((afterDate || afterVar) && !(DT.test(afterDate || '') && VAR.test(afterVar || ''))) {
     return send(res, 400, { error: 'Λάθος cursor' });
